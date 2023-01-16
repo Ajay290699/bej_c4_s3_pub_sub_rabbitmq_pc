@@ -1,0 +1,64 @@
+version: "3.9"
+services:
+  mongodbservice:
+    image: mongo:latest
+    ports:
+      - "27018:27018"
+    container_name: mongo-products-container
+    networks:
+      - products-networks
+  mysql-user-service:
+    image: mysql:latest
+    ports:
+      - "3308:3307"
+    container_name: mysql-contains
+    networks:
+      - users-networks
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USERNAME: aarti
+      MYSQL_PASSWORD: aaru
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
+  products-service:
+    container_name: products-service
+    build: Product/
+    networks:
+      - products-networks
+    ports:
+      - "65108:65108"
+    depends_on:
+      - mongodbservice
+    restart: always
+
+  api-gateway-service:
+    container_name: api-gateway-container
+    build: ApiGatewayServiceApp/
+    networks:
+      - api-network
+    ports:
+      - "65001:65001"
+    restart: always
+
+  user-auth-service:
+    container_name: users-authentication-service
+    build: User/
+    networks:
+      - users-networks
+    ports:
+      - "8089:8089"
+    depends_on:
+      - mysql-user-service
+    restart: always
+networks:
+  users-networks:
+    driver: bridge
+  products-networks:
+    driver: bridge
+
+
+
+
+
+
+
